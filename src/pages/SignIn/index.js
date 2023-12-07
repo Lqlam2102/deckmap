@@ -76,7 +76,7 @@ export default function SignIn() {
             cookies.save('user', user.data);
             dispatch(loginUser(user.data));
             SnackbarSubmit('login_success');
-            // navigate(pathContinue);
+            navigate(pathContinue);
         } catch (err) {
             SnackbarSubmit('error');
             console.log(err.message);

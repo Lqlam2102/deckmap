@@ -1,6 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { publicRoutes } from '~/routes';
-import { DefaultLayout } from '~/components/layout';
 import { Fragment } from 'react';
 import { SnackbarProvider } from 'notistack';
 import Apis, { endpoints } from '~/configs/Apis';
@@ -41,7 +40,7 @@ function App() {
             <div className="App">
                 <Routes>
                     {publicRoutes.map((route, index) => {
-                        const Layout = route.layout === null ? Fragment : DefaultLayout;
+                        const Layout = route.layout === null ? Fragment : route.layout;
                         const Page = route.component;
                         return (
                             <Route

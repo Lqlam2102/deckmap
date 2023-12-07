@@ -5,6 +5,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, memo } from 'react';
 import store from '~/reducers/Store';
+import styles from './Header.module.scss';
+import classNames from 'classnames/bind';
+const cx = classNames.bind(styles);
+
 function Header() {
     const [login, setLogin] = useState(false);
     const navigate = useNavigate();
@@ -25,10 +29,21 @@ function Header() {
         navigate('/signin');
     };
     return (
-        <>
-            <h2>Header</h2>
-            {login ? <button onClick={handleLogout}>OUT</button> : <button onClick={handleLogin}>Login</button>}
-        </>
+        <nav>
+            <div className={cx('menu')}>
+                <p>Code Site</p>
+                {login ? (
+                    <button className={cx('btn-login')} onClick={handleLogout}>
+                        Đăng xuất
+                    </button>
+                ) : (
+                    <button className={cx('btn-login')} onClick={handleLogin}>
+                        Đăng nhập
+                    </button>
+                )}
+            </div>
+            <div className={cx('backdrop')}></div>
+        </nav>
     );
 }
 
