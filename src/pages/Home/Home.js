@@ -9,7 +9,7 @@ function Home() {
         <div className={cx('main')}>
             <h1>The Coolest Header Ever</h1>
             <p>This is literally one of the coolest headers.</p>
-            <Link href="#" target="noopener">
+            <Link to="/deckmap" target="noopener">
                 <ButtonMore />
             </Link>
         </div>

@@ -11,6 +11,7 @@
 # production
 /build
 /.vscode
+/src/configs/KeyMap.js
 
 # misc
 .DS_Store
