@@ -1,4 +1,4 @@
-import ButtonMore from '~/components/Button/ButtonMore';
+import { ButtonMore } from '~/components/Button/ButtonMore';
 import styles from './Home.module.scss';
 import classNames from 'classnames/bind';
 import { Link } from 'react-router-dom';

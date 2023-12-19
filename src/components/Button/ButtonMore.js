@@ -3,7 +3,7 @@ import styles from './ButtonMore.module.scss';
 import React from 'react';
 const cx = classNames.bind(styles);
 
-export default function ButtonMore() {
+export function ButtonMore() {
     return (
         <div id={cx('container')}>
             <button className={cx('learn-more', 'btn-more')}>

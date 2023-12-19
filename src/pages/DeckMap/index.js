@@ -1,1 +1,2 @@
-export { default } from './DeckMap';
+export { default } from './DeckMapSDK';
+// export { default } from './DeckMap';
