@@ -32,6 +32,9 @@ function Header() {
         <nav>
             <div className={cx('menu')}>
                 <p>Code Site</p>
+                {/* <Link className={cx('link-map')} to="/deckmap" target="noopener">
+                    ViewMap
+                </Link> */}
                 {login ? (
                     <button className={cx('btn-login')} onClick={handleLogout}>
                         Đăng xuất

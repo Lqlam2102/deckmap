@@ -1,0 +1,37 @@
+#control-panel {
+    font-family: Helvetica, Arial, sans-serif;
+    position: absolute;
+    background: #fff;
+    top: 0;
+    left: 0;
+    margin: 12px;
+    padding: 12px;
+    z-index: 1;
+    div span {
+        font-size: 16px;
+        padding: 6px;
+    }
+}
+
+label {
+    font-size: 14px;
+    width: 140px;
+    display: inline-block;
+}
+
+.map-type-wrapper {
+    width: 30px;
+    height: 30px;
+    box-shadow: 0 0 4px #666;
+    background-color: #fff;
+    border-radius: 4px;
+    overflow: hidden;
+    position: absolute;
+    z-index: 1;
+    bottom: 10px;
+    right: 10px;
+}
+
+#imgBaseMapType {
+    background-size: contain;
+}

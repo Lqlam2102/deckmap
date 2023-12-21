@@ -4,11 +4,11 @@ import SignIn from '~/pages/SignIn';
 import SignUp from '~/pages/SignUp';
 import ForgotPassword from '~/pages/ForgotPassword';
 import DeckMap from '~/pages/DeckMap';
-import { LayoutOnlyHeader } from '~/Layout';
+// import { LayoutOnlyHeader } from '~/Layout';
 // import { DefaultLayout } from './Layout';
 
 const publicRoutes = [
-    { path: '/', component: Home, layout: LayoutOnlyHeader },
+    { path: '/', component: Home, layout: null },
     { path: '/signin', component: SignIn, layout: null },
     { path: '/signup', component: SignUp, layout: null },
     { path: '/forgot', component: ForgotPassword, layout: null },

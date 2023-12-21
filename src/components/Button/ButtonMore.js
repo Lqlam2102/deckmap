@@ -5,13 +5,11 @@ const cx = classNames.bind(styles);
 
 export function ButtonMore() {
     return (
-        <div id={cx('container')}>
-            <button className={cx('learn-more', 'btn-more')}>
-                <span className={cx('circle')} aria-hidden="true">
-                    <span className={cx('icon', 'arrow')}></span>
-                </span>
-                <span className={cx('button-text')}>Learn More</span>
-            </button>
-        </div>
+        <button className={cx('learn-more', 'btn-more')}>
+            <span className={cx('circle')} aria-hidden="true">
+                <span className={cx('icon', 'arrow')}></span>
+            </span>
+            <span className={cx('button-text')}>Learn More</span>
+        </button>
     );
 }
