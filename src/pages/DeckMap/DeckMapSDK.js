@@ -2,95 +2,30 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useRef, useState } from 'react';
 import { Deck } from '@deck.gl/core';
-import { HexagonLayer } from '@deck.gl/aggregation-layers';
-import * as d3 from 'd3';
+// import { HexagonLayer } from '@deck.gl/aggregation-layers';
+// import * as d3 from 'd3';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner } from '@fortawesome/free-solid-svg-icons';
+import {
+    faAngleDown,
+    faChevronLeft,
+    faChevronRight,
+    faLayerGroup,
+    faSpinner,
+    faToolbox,
+} from '@fortawesome/free-solid-svg-icons';
 import { Matrix4 } from '@math.gl/core';
 import styles from './DeckMapSDK.module.scss';
 import classNames from 'classnames/bind';
 import images from '~/assets/image';
-import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
+// import { AmbientLight, PointLight, LightingEffect } from '@deck.gl/core';
+import { PolygonLayer } from '@deck.gl/layers';
+import cookies from 'react-cookies';
+import Apis from '~/configs/Apis';
+import { Fade } from '@mui/material';
+import Slide from '@mui/material/Slide';
 
 const cx = classNames.bind(styles);
-const COLOR_RANGE = [
-    [1, 152, 189],
-    [73, 227, 206],
-    [216, 254, 181],
-    [254, 237, 177],
-    [254, 173, 84],
-    [209, 55, 78],
-];
-const ambientLight = new AmbientLight({
-    color: [255, 255, 255],
-    intensity: 1.0,
-});
 
-const pointLight1 = new PointLight({
-    color: [255, 255, 255],
-    intensity: 0.8,
-    position: [-0.144528, 49.739968, 80000],
-});
-
-const pointLight2 = new PointLight({
-    color: [255, 255, 255],
-    intensity: 0.8,
-    position: [-3.807751, 54.104682, 8000],
-});
-
-const lightingEffect = new LightingEffect({ ambientLight, pointLight1, pointLight2 });
-
-const material = {
-    ambient: 0.64,
-    diffuse: 0.6,
-    shininess: 32,
-    specularColor: [51, 51, 51],
-};
-
-function getTooltip({ object }) {
-    if (!object) {
-        return null;
-    }
-    const lat = object.position[1];
-    const lng = object.position[0];
-    const count = object.points.length;
-
-    return `\
-      latitude: ${Number.isFinite(lat) ? lat.toFixed(6) : ''}
-      longitude: ${Number.isFinite(lng) ? lng.toFixed(6) : ''}
-      ${count} Accidents`;
-}
-
-function handleMouseEvent(_deck, type, args) {
-    const deck = _deck;
-    if (!deck.isInitialized) {
-        return;
-    }
-
-    const mockEvent = {
-        type,
-        offsetCenter: args.pixel,
-        srcEvent: args.xa,
-    };
-
-    switch (type) {
-        case 'click':
-            mockEvent.type = 'click';
-            mockEvent.tapCount = 1;
-            deck._onPointerDown(mockEvent);
-            deck._onEvent(mockEvent);
-            break;
-
-        case 'dblClick':
-            mockEvent.type = 'click';
-            mockEvent.tapCount = 2;
-            deck._onEvent(mockEvent);
-            break;
-
-        default:
-            return;
-    }
-}
 function createDeckContainer() {
     const container = document.createElement('div');
     Object.assign(container.style, {
@@ -131,43 +66,50 @@ function getViewState(map, mapContainer) {
 
     return viewState;
 }
-
+// const COLOR_LAYER = 'rgb(60,140,0)';
 const MAP_TYPE = ['roadMap', 'raster', 'satellite'];
 export default function DeckMap() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [radius, setRadius] = useState(1000);
-    const [coverage, setCoverage] = useState(1);
     const [mapType, setMapType] = useState(1);
-    const [upperPercentile, setUpperPercentile] = useState(100);
+    const [yearFilter, setYearFilter] = useState(2017);
+    const [opacityLayer, setOpacityLayer] = useState(1);
+    const [showDetail, setShowDetail] = useState(false);
+    const [showLayer, setShowLayer] = useState(true);
+    const [showToolbox, setShowToolbox] = useState(true);
+    const [dataLayer, setDataLayer] = useState(null);
     const data_layer = useRef(null);
+    const data_layer_const = useRef(null);
     const deck = useRef(null);
     const mapContainer = useRef(null);
     const mapMain = useRef(null);
     useEffect(() => {
-        // Sử dụng biến từ URL SDK
+        // Load map
         mapContainer.current = document.getElementsByClassName('App')[0];
         mapContainer.current.setAttribute('style', 'height: 100vh');
-        d3.csv('https://raw.githubusercontent.com/uber-common/deck.gl-data/master/examples/3d-heatmap/heatmap-data.csv')
-            .then((data) => {
+        const access_token = cookies.load('access_token');
+        // Sử dụng biến từ URL SDK
+        async function getData() {
+            try {
+                let data = await Apis.get('api/lmhtx/testbxun', {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`,
+                    },
+                });
+                data_layer_const.current = data.data[0][0];
+                data_layer.current = data.data[0][0];
                 setIsLoading(false);
-                data_layer.current = data;
-                // renderLayer();
-            })
-            .catch((error) => {
+            } catch (err) {
                 setIsLoading(false);
                 setError(error);
-                console.log(error);
-            });
+                console.log(err.message);
+            }
+        }
+        getData();
     }, []);
     useEffect(() => {
-        if (!isLoading) {
-            renderLayer();
-        }
-    }, [radius, upperPercentile, coverage]);
-    useEffect(() => {
+        // Khởi tạo map
         const map4d = window.map4d;
-
         if (!isLoading) {
             const deckContainer = createDeckContainer();
             function appendDeckContainer() {
@@ -190,19 +132,20 @@ export default function DeckMap() {
             window.initMap = () => {
                 /** Map View */
                 mapMain.current = new map4d.Map(mapContainer.current, {
-                    center: [-1.4157, 52.2324],
+                    center: [104.751262038, 8.632767707],
                     tilt: 30,
-                    zoom: 7,
-                    maxZoom: 13,
+                    zoom: 13,
+                    maxZoom: 19,
                     // controls: true,
                     mapType: 'roadmap',
                     bearing: 0,
                 });
+
                 deck.current = new Deck({
                     parent: deckContainer,
-                    controller: true,
-                    getTooltip: getTooltip,
-                    effects: [lightingEffect],
+                    getTooltip: ({ object }) => object && `${object.properties.dtuong}`,
+                    // effects: [lightingEffect],
+                    onClick: deckOnClick,
                     viewState: getViewState(mapMain.current, mapContainer.current),
                 });
                 const webGLOverlay = new map4d.WebGLOverlayView({
@@ -221,52 +164,109 @@ export default function DeckMap() {
                 /** Map Events */
                 mapMain.current.addListener('click', (args) => handleMouseEvent(deck.current, 'click', args));
                 mapMain.current.addListener('dblClick', (args) => handleMouseEvent(deck.current, 'dblClick', args));
+                function handleMouseEvent(_deck, type, args) {
+                    const deck = _deck;
+                    if (!deck.isInitialized) {
+                        return;
+                    }
+                    const mockEvent = {
+                        type,
+                        offsetCenter: args.pixel,
+                        srcEvent: args.xa,
+                    };
+                    switch (type) {
+                        case 'click':
+                            mockEvent.type = 'click';
+                            mockEvent.tapCount = 1;
+                            deck._onPointerDown(mockEvent);
+                            deck._onEvent(mockEvent);
+                            // let marker = new map4d.Marker({
+                            //     position: { lat: args.location.lat, lng: args.location.lng },
+                            //     zIndex: 999,
+                            // });
+                            // marker.setMap(mapMain.current);
+                            break;
+                        case 'dblClick':
+                            mockEvent.type = 'click';
+                            mockEvent.tapCount = 2;
+                            deck._onEvent(mockEvent);
+                            break;
+                        default:
+                            return;
+                    }
+                }
             };
             window.initMap();
+            renderLayer();
         }
     }, [isLoading]);
-    // function handleDeckMap() {
-    //     deck.current.setProps({
-    //         layers: [],
-    //     });
-    // }
+    useEffect(() => {
+        if (!isLoading) {
+            data_layer.current = data_layer_const.current.filter(
+                (obj) => obj.properties.ngayht.indexOf(yearFilter) !== -1,
+            );
+            renderLayer();
+        }
+    }, [opacityLayer, yearFilter, showLayer]);
     function renderLayer() {
-        const hexagonLayer = new HexagonLayer({
-            id: 'heatmap',
-            colorRange: COLOR_RANGE,
-            data: data_layer.current,
-            elevationRange: [0, 1000],
-            elevationScale: 250,
-            extruded: true,
-            getPosition: (d) => [Number(d.lng), Number(d.lat)],
-            opacity: 1,
-            radius,
-            fp64: true,
-            coverage,
-            upperPercentile,
-            material,
-            pickable: true,
-            transitions: {
-                elevationScale: 1000,
-            },
-        });
-        deck.current.setProps({
-            layers: [hexagonLayer],
-        });
-    }
+        if (showLayer) {
+            deck.current.setProps({
+                layers: [
+                    // hexagonLayer,
+                    new PolygonLayer({
+                        id: 'PolygonLayer',
+                        data: data_layer.current,
 
+                        /* props from PolygonLayer class */
+                        opacity: opacityLayer,
+                        // elevationScale: 1,
+                        extruded: true,
+                        filled: true,
+                        getElevation: (d) => d.properties.dtich,
+                        getFillColor: (d) => [d.properties.dtich * 2.55, 140, 0],
+                        getLineColor: [80, 80, 80],
+                        getLineWidth: (d) => 1,
+                        getPolygon: (d) => {
+                            return d.geometry.coordinates;
+                        },
+                        // lineJointRounded: false,
+                        // lineMiterLimit: 4,
+                        // lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+                        lineWidthMinPixels: 1,
+                        // lineWidthScale: 1,
+                        // lineWidthUnits: 'meters',
+                        // material: true,
+                        stroked: true,
+                        wireframe: true,
+                        pickable: true,
+                    }),
+                ],
+            });
+        } else {
+            deck.current.setProps({
+                layers: [],
+            });
+        }
+    }
+    const deckOnClick = (e) => {
+        if (e?.object?.properties !== undefined) {
+            setDataLayer(e.object.properties);
+            setShowDetail(true);
+        } else {
+            setShowDetail(false);
+        }
+    };
     function handleChangValueDeckMap(e, type) {
         // eslint-disable-next-line no-eval
         eval(`set${type}(${e.target.value})`);
-        // mapMain.current.setMapType('raster');
     }
+
     function handleChangeMapType() {
         if (mapType < 2) {
             setMapType(mapType + 1);
         } else {
             setMapType(0);
         }
-        console.log(MAP_TYPE[mapType]);
         mapMain.current.setMapType(MAP_TYPE[mapType]);
     }
     return isLoading ? (
@@ -285,58 +285,169 @@ export default function DeckMap() {
     ) : error ? (
         <div>{'Oops! Đã có lỗi xảy ra.'}</div>
     ) : (
-        <div className={cx('control')}>
-            <div id={cx('control-panel')}>
-                <div>
-                    <label>Bán kính lục giác</label>
-                    <input
-                        id="radius"
-                        type="range"
-                        min="1000"
-                        max="20000"
-                        step="1000"
-                        value={radius}
-                        onInput={(e) => handleChangValueDeckMap(e, 'Radius')}
-                    ></input>
-                    <span id="radius-value">{radius}</span>
+        <>
+            <div className={cx('control')}>
+                <Slide direction="right" in={showToolbox} mountOnEnter unmountOnExit>
+                    <div id={cx('control-panel')}>
+                        <div
+                            className={cx('btn-tb')}
+                            onClick={(e) => {
+                                setShowToolbox(!showToolbox);
+                            }}
+                        >
+                            <FontAwesomeIcon icon={faChevronLeft} />
+                        </div>
+                        <label>Phổ màu</label>
+                        <div className={cx('color-layout', 'w-100')}>
+                            <div className={cx('color-range', 'w-100')}>
+                                <div
+                                    className={cx('color-layout-1', 'color-layout-child')}
+                                    style={{ backgroundColor: `rgb(51,140,0)` }}
+                                ></div>
+                                <div
+                                    className={cx('color-layout-2', 'color-layout-child')}
+                                    style={{ backgroundColor: `rgb(102,140,0)` }}
+                                ></div>
+                                <div
+                                    className={cx('color-layout-3', 'color-layout-child')}
+                                    style={{ backgroundColor: `rgb(153,140,0)` }}
+                                ></div>
+                                <div
+                                    className={cx('color-layout-4', 'color-layout-child')}
+                                    style={{ backgroundColor: `rgb(204,140,0)` }}
+                                ></div>
+                                <div
+                                    className={cx('color-layout-5', 'color-layout-child')}
+                                    style={{ backgroundColor: `rgb(255,140,0)` }}
+                                ></div>
+                            </div>
+                            <div className={cx('sub-color')}>
+                                <div>10%</div>
+                                <div>100%</div>
+                            </div>
+                        </div>
+                        <div className={cx('panel-changeOption')}>
+                            <span style={{ paddingLeft: '0px' }}>Độ trong suốt</span>
+                            <input
+                                id="opacityLayer"
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={opacityLayer}
+                                onInput={(e) => handleChangValueDeckMap(e, 'OpacityLayer')}
+                            ></input>
+                            <span id="opacityLayer-value">{opacityLayer}</span>
+                        </div>
+                        <div className={cx('panel-changeOption')}>
+                            <span style={{ paddingLeft: '0px' }}>Mốc thời gian</span>
+                            <input
+                                id="yearFilter"
+                                type="range"
+                                min="2016"
+                                max="2023"
+                                step="1"
+                                value={yearFilter}
+                                onInput={(e) => handleChangValueDeckMap(e, 'YearFilter')}
+                            ></input>
+                            <span id="yearFilter-value">{yearFilter}</span>
+                        </div>
+                    </div>
+                </Slide>
+                <Fade in={!showToolbox}>
+                    <div
+                        className={cx('btn-tb-open')}
+                        onClick={(e) => {
+                            setShowToolbox(!showToolbox);
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faChevronRight} beatFade />
+                    </div>
+                </Fade>
+                <div className={cx('map-type-wrapper')}>
+                    <img
+                        id="imgBaseMapType"
+                        alt="map-type"
+                        className={cx('w-100', 'h-100')}
+                        title={MAP_TYPE[mapType]}
+                        src={images[MAP_TYPE[mapType]]}
+                        onClick={handleChangeMapType}
+                    ></img>
                 </div>
-                <div>
-                    <label>Độ bao phủ</label>
-                    <input
-                        id="coverage"
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.1"
-                        value={coverage}
-                        onInput={(e) => handleChangValueDeckMap(e, 'Coverage')}
-                    ></input>
-                    <span id="coverage-value">{coverage}</span>
-                </div>
-                <div>
-                    <label>Phần trăm cao nhất</label>
-                    <input
-                        id="upperPercentile"
-                        type="range"
-                        min="1"
-                        max="100"
-                        step="1"
-                        value={upperPercentile}
-                        onInput={(e) => handleChangValueDeckMap(e, 'UpperPercentile')}
-                    ></input>
-                    <span id="upperPercentile-value">{upperPercentile}</span>
+                <div className={cx('nav-tools')}>
+                    <div
+                        id={cx('tool-map1')}
+                        onClick={(e) => {
+                            setShowToolbox(!showToolbox);
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faToolbox} />
+                    </div>
+                    <div
+                        id={cx('tool-map2')}
+                        onClick={(e) => {
+                            setShowLayer(!showLayer);
+                            if (showLayer && showDetail) {
+                                setShowDetail(!showDetail);
+                            }
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faLayerGroup} />
+                    </div>
                 </div>
             </div>
-            <div className={cx('map-type-wrapper')}>
-                <img
-                    id="imgBaseMapType"
-                    alt="map-type"
-                    className={cx('w-100', 'h-100')}
-                    title={MAP_TYPE[mapType]}
-                    src={images[MAP_TYPE[mapType]]}
-                    onClick={handleChangeMapType}
-                ></img>
-            </div>
-        </div>
+            {/* Modal show chi tiết dữ liệu */}
+            <Fade in={showDetail}>
+                <div className={cx('position-fixed', 'nav-pc-mobie')}>
+                    <div className={cx('main-card')}>
+                        <div className={cx('card', 'h-100')}>
+                            <div className={cx('card-header', 'py-2', 'mt-1')}>
+                                <button
+                                    onClick={() => setShowDetail(!showDetail)}
+                                    type="button"
+                                    className={cx('btn-close', 'float-end', 'fs-12', 'ms-2')}
+                                ></button>
+                                <h6 className={cx('card-title', 'mb-0', 'fs-14')}>Chi tiết lớp dữ liệu</h6>
+                            </div>
+                            <div className={cx('card-body')}>
+                                <div className={cx('w-100', 'h-95')}>
+                                    <div
+                                        className={cx('card')}
+                                        style={{ marginBottom: '12px', border: '1px solid rgb(41, 156, 219)' }}
+                                    >
+                                        {/* <div className={cx('card-head', 'px-2', 'head-show', 'text-bg-primary')}>
+                                                <h6 class="text-white card-title mb-0 ellipsis fs-14">Test</h6>
+                                                <FontAwesomeIcon
+                                                    icon={faAngleDown}
+                                                    style={{ transition: 'all 0.3s linear 0s', fontStyle: '18px' }}
+                                                />
+                                            </div> */}
+                                        <div className={cx('card-body')}>
+                                            <ul style={{ padding: 0 }}>
+                                                <table>
+                                                    <tbody>
+                                                        {dataLayer &&
+                                                            Object.entries(dataLayer).map(([key, value]) => {
+                                                                return (
+                                                                    <tr key={key}>
+                                                                        <td>
+                                                                            <b>{key}:</b>
+                                                                        </td>
+                                                                        <td>{value}</td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                    </tbody>
+                                                </table>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Fade>
+        </>
     );
 }

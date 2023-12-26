@@ -30,3 +30,24 @@ body {
 .h-100 {
     height: 100% !important;
 }
+.h-95 {
+    height: 95% !important;
+}
+//Scrollbar CSS
+html *::-webkit-scrollbar {
+    border-radius: 0;
+    width: 8px;
+    // box-shadow: 0px 0px 1px 0px #000000;
+}
+
+html *::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 1px 0px #000000;
+}
+
+html *::-webkit-scrollbar-track {
+    border-radius: 0;
+    // box-shadow: 0px 0px 1px 0px #000000;
+    background-color: rgba(0, 0, 0, 0);
+}

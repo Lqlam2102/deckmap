@@ -6,11 +6,13 @@
     left: 0;
     margin: 12px;
     padding: 12px;
+    width: 312px;
     z-index: 1;
     div span {
-        font-size: 16px;
+        font-size: 15px;
         padding: 6px;
     }
+    border-radius: 15px;
 }
 
 label {
@@ -34,4 +36,186 @@ label {
 
 #imgBaseMapType {
     background-size: contain;
+}
+
+.panel-changeOption {
+    display: flex;
+    // justify-content: center;
+    align-items: center;
+}
+// Modal
+.nav-pc-mobie {
+    right: 0;
+    top: calc(50% - 24px);
+    transform: translateY(-50%);
+    background: #fff;
+    border-radius: 10px;
+    margin-right: 8px;
+    z-index: 1;
+}
+.position-fixed {
+    position: fixed !important;
+}
+.overflow-hidden {
+    overflow: hidden !important;
+}
+.nav-pc-mobie .main-card {
+    height: calc(100vh - 175px);
+    width: 392px;
+}
+.card {
+    // margin-bottom: 1.5rem;
+    height: 100%;
+    box-shadow: 0 1px 2px rgba(56, 65, 74, 0.15);
+}
+
+.card-header:first-child {
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+.card-header {
+    border-bottom: 1px solid #e9ebec;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+    margin-top: 0.25rem !important;
+    padding: 1rem 1rem;
+    margin-bottom: 0;
+    background-color: var(--white);
+}
+[type='button']:not(:disabled),
+[type='reset']:not(:disabled),
+[type='submit']:not(:disabled),
+[type='button'],
+[type='reset'],
+[type='submit'],
+button {
+    -webkit-appearance: button;
+}
+button:not(:disabled) {
+    cursor: pointer;
+}
+.fs-12 {
+    font-size: 12px !important;
+}
+.ms-2 {
+    margin-left: 0.5rem !important;
+}
+.float-end {
+    float: right !important;
+}
+.btn-close {
+    box-sizing: content-box;
+    width: 1em;
+    height: 1em;
+    padding: 0.25em 0.25em;
+    color: #000;
+    background: transparent
+        url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3E%3C/svg%3E")
+        50%/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: 0.5;
+}
+.mb-0 {
+    margin-bottom: 0 !important;
+}
+.card-title {
+    margin: 0 0 7px 0;
+}
+.fs-14 {
+    font-size: 14px !important;
+}
+
+.card-body {
+    flex: 1 1 auto;
+    padding: 1rem 1rem;
+    font-size: 0.8125rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.head-show {
+    line-height: 38px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+.color-layout {
+    // background-color: #000;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.color-range {
+    height: 14px;
+    display: flex;
+}
+.color-layout-child {
+    width: 20%;
+    height: 100%;
+    z-index: 1;
+}
+
+.sub-color {
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+}
+
+// Nav tools
+.nav-tools {
+    display: flex;
+    position: absolute;
+    z-index: 1;
+    bottom: 7px;
+    right: 50%;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 0 4px #666;
+    padding: 1px 2px;
+}
+
+#tool-map1 {
+    background-color: rgb(64, 81, 137);
+    padding: 5px 10px;
+    font-size: 16px;
+    margin: 3px 3px;
+    border-radius: 5px;
+    color: #fff;
+    &:hover {
+        cursor: pointer;
+        background-color: rgba(64, 81, 137, 0.9);
+    }
+}
+#tool-map2 {
+    background-color: rgb(240, 101, 72);
+    padding: 5px 10px;
+    font-size: 16px;
+    margin: 3px 3px;
+    border-radius: 5px;
+    color: #fff;
+    &:hover {
+        cursor: pointer;
+        background-color: rgba(240, 101, 72, 0.9);
+    }
+}
+.btn-tb {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 15px;
+    padding: 10px;
+    cursor: pointer;
+}
+.btn-tb-open {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 15px;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 2;
+    color: var(--white);
 }

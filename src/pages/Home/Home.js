@@ -31,8 +31,11 @@ function Home() {
             <div className="container">
                 <div className="content">
                     <div className={cx('main')}>
-                        <h1>The Coolest Header Ever</h1>
-                        <p>This is literally one of the coolest headers.</p>
+                        <h1>Khóa luận tốt nghiệp</h1>
+                        <p>
+                            Nghiên cứu mô hình học sâu, ứng dụng phân tích ảnh vệ tinh xác định lớp phủ rừng theo thời
+                            gian và trực quan hóa trên bản đồ.
+                        </p>
 
                         <Link
                             id="btn-more"

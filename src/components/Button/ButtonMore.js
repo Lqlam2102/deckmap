@@ -9,7 +9,7 @@ export function ButtonMore() {
             <span className={cx('circle')} aria-hidden="true">
                 <span className={cx('icon', 'arrow')}></span>
             </span>
-            <span className={cx('button-text')}>Learn More</span>
+            <span className={cx('button-text')}>Bản đồ</span>
         </button>
     );
 }

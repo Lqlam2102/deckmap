@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/no-access-key */
+// KHÔNG SỬ DỤNG DO MAP4D KHÔNG SUPPORT TỐT CHO REACT
 import React, { useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
 import { MFMap } from 'react-map4d-map';
