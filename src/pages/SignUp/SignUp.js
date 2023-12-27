@@ -3,8 +3,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
@@ -15,17 +13,24 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { IconButton } from '@mui/material';
 import Copyright from '~/components/Copyright';
 import store from '~/reducers/Store';
+import { useState } from 'react';
+import classNames from 'classnames/bind';
+import styles from './SignUp.module.scss';
+import Apis, { endpoints } from '~/configs/Apis';
+
 // TODO remove, this demo shouldn't need to reset the theme.
+
+const cx = classNames.bind(styles);
 
 const defaultTheme = createTheme();
 
 export default function SignUp() {
     const navigate = useNavigate();
-
+    const [avatar, setAvatar] = useState();
     React.useEffect(() => {
         const state = store.getState();
         if (state.user?.user?.id) {
@@ -41,25 +46,57 @@ export default function SignUp() {
         );
         if (mess === 'success') {
             enqueueSnackbar('Đăng ký thành công!', { variant: 'success', action });
-        } else {
+        } else if (mess === 'null') {
             enqueueSnackbar('Không được để trống thông tin!', { variant: 'error', action });
+        } else {
+            enqueueSnackbar(`${mess}`, { variant: 'error', action });
         }
     };
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         let email = data.get('email');
         let password = data.get('password');
         let allowExtraEmails = data.get('allowExtraEmails');
+        if (avatar) {
+            data.append('photo', avatar, avatar.name);
+        }
+
         if (email && password && allowExtraEmails) {
-            SnackbarSubmit('success');
+            try {
+                let res = await Apis.post(endpoints['register'], data);
+                // cookies.save('access_token', res.data.access_token);
+                // let user = await Apis.get(endpoints['current-user'], {
+                //     headers: {
+                //         Authorization: `Bearer ${cookies.load('access_token')}`,
+                //     },
+                // });
+                // cookies.save('user', user.data);
+                // dispatch(loginUser(user.data));
+                console.log(res);
+                SnackbarSubmit('success');
+                // navigate(pathContinue);
+            } catch (err) {
+                if (err.response.data?.username) {
+                    SnackbarSubmit('Tài khoản đã tồn tại');
+                } else {
+                    SnackbarSubmit(err.response.data?.message);
+                }
+                console.log(err);
+            }
         } else {
-            SnackbarSubmit('error');
+            SnackbarSubmit('null');
         }
     };
     const handleSignIn = (event) => {
         event.preventDefault();
         navigate('/signin');
+    };
+    const handlePreviewAvatar = (e) => {
+        const file = e.target.files[0];
+        file.preview = URL.createObjectURL(file);
+        setAvatar(file);
+        console.log(file);
     };
 
     return (
@@ -85,10 +122,10 @@ export default function SignUp() {
                             <Grid item xs={12} sm={6}>
                                 <TextField
                                     autoComplete="given-name"
-                                    name="firstName"
+                                    name="first_name"
                                     required
                                     fullWidth
-                                    id="firstName"
+                                    id="first_name"
                                     label="Họ đệm"
                                     autoFocus
                                 />
@@ -97,9 +134,9 @@ export default function SignUp() {
                                 <TextField
                                     required
                                     fullWidth
-                                    id="lastName"
+                                    id="last_name"
                                     label="Tên"
-                                    name="lastName"
+                                    name="last_name"
                                     autoComplete="family-name"
                                 />
                             </Grid>
@@ -134,12 +171,31 @@ export default function SignUp() {
                                     autoComplete="new-password"
                                 />
                             </Grid>
-                            <Grid item xs={12}>
-                                <FormControlLabel
-                                    name="allowExtraEmails"
-                                    control={<Checkbox value="allowExtraEmails" color="primary" />}
-                                    label="Tôi muốn nhận được các thông báo của hệ thống về email sau này."
-                                />
+                            <Grid item xs={12} style={{ marginBottom: '-10px' }}>
+                                <label>Hình đại diện</label>
+                                {/* <input type="file" onChange={handlePreviewAvatar} /> */}
+
+                                {avatar ? (
+                                    <img id={cx('uploaded_view')} src={avatar.preview} alt="avatar" />
+                                ) : (
+                                    <img
+                                        id={cx('uploaded_view')}
+                                        src={
+                                            'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1280px-Image_created_with_a_mobile_phone.png'
+                                        }
+                                        alt="avatar"
+                                    />
+                                )}
+                                <div className={cx('btn_upload')}>
+                                    <input
+                                        type="file"
+                                        id="upload_file"
+                                        name=""
+                                        onChange={handlePreviewAvatar}
+                                        accept="image/*"
+                                    />
+                                    <FontAwesomeIcon icon={faCamera} id={cx('icon-avatar')} />
+                                </div>
                             </Grid>
                         </Grid>
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>

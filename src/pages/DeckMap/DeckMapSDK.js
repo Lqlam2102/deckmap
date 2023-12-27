@@ -23,6 +23,9 @@ import cookies from 'react-cookies';
 import Apis from '~/configs/Apis';
 import { Fade } from '@mui/material';
 import Slide from '@mui/material/Slide';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
 
 const cx = classNames.bind(styles);
 
@@ -75,29 +78,41 @@ export default function DeckMap() {
     const [yearFilter, setYearFilter] = useState(2017);
     const [opacityLayer, setOpacityLayer] = useState(1);
     const [showDetail, setShowDetail] = useState(false);
+    const [fetchData, setFetchData] = useState(false);
     const [showLayer, setShowLayer] = useState(true);
     const [showToolbox, setShowToolbox] = useState(true);
+    const [layers, setLayers] = useState([]);
+    const [layerCurrent, setLayerCurrent] = useState();
     const [dataLayer, setDataLayer] = useState(null);
     const data_layer = useRef(null);
     const data_layer_const = useRef(null);
     const deck = useRef(null);
     const mapContainer = useRef(null);
     const mapMain = useRef(null);
+    const access_token = cookies.load('access_token');
     useEffect(() => {
         // Load map
         mapContainer.current = document.getElementsByClassName('App')[0];
         mapContainer.current.setAttribute('style', 'height: 100vh');
-        const access_token = cookies.load('access_token');
         // Sử dụng biến từ URL SDK
         async function getData() {
             try {
-                let data = await Apis.get('api/lmhtx/testbxun', {
+                let layers = await Apis.get('api/layer/?all', {
                     headers: {
                         Authorization: `Bearer ${access_token}`,
                     },
                 });
-                data_layer_const.current = data.data[0][0];
-                data_layer.current = data.data[0][0];
+                if (layers.data.results) {
+                    setLayers(layers.data.results);
+                    setLayerCurrent(layers.data.results[0].model);
+                    let data = await Apis.get(`api/geo/${layers.data.results[0].model.toLowerCase()}/`, {
+                        headers: {
+                            Authorization: `Bearer ${access_token}`,
+                        },
+                    });
+                    data_layer_const.current = data.data[0][0];
+                    data_layer.current = data.data[0][0];
+                }
                 setIsLoading(false);
             } catch (err) {
                 setIsLoading(false);
@@ -202,13 +217,85 @@ export default function DeckMap() {
     }, [isLoading]);
     useEffect(() => {
         if (!isLoading) {
-            data_layer.current = data_layer_const.current.filter(
-                (obj) => obj.properties.ngayht.indexOf(yearFilter) !== -1,
-            );
+            if (data_layer.current !== null) {
+                try {
+                    data_layer.current = data_layer_const.current.filter(
+                        (obj) => obj.properties.ngayht.indexOf(yearFilter) !== -1,
+                    );
+                } catch (err) {
+                    alert('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!');
+                }
+            } else {
+                alert('Không có dữ liệu bản đồ!');
+            }
             renderLayer();
         }
     }, [opacityLayer, yearFilter, showLayer]);
+    useEffect(() => {
+        async function getData() {
+            try {
+                let data = await Apis.get(`api/geo/${layerCurrent.toLowerCase()}/`, {
+                    headers: {
+                        Authorization: `Bearer ${access_token}`,
+                    },
+                });
+                data_layer_const.current = data.data[0][0];
+                data_layer.current = data.data[0][0];
+                setFetchData(false);
+                return data.data[0][0];
+            } catch (err) {
+                setFetchData(false);
+                console.log(err.message);
+            }
+        }
+        if (!isLoading) {
+            setFetchData(true);
+            deck.current.setProps({
+                layers: [],
+            });
+            let data = getData();
+            if (showLayer) {
+                deck.current.setProps({
+                    layers: [
+                        // hexagonLayer,
+                        new PolygonLayer({
+                            id: 'PolygonLayer',
+                            data: data,
+
+                            /* props from PolygonLayer class */
+                            opacity: opacityLayer,
+                            // elevationScale: 1,
+                            extruded: true,
+                            filled: true,
+                            getElevation: (d) => d.properties.dtich,
+                            getFillColor: (d) => [d.properties.dtich * 2.55, 140, 0],
+                            getLineColor: [80, 80, 80],
+                            getLineWidth: (d) => 1,
+                            getPolygon: (d) => {
+                                return d.geometry.coordinates;
+                            },
+                            // lineJointRounded: false,
+                            // lineMiterLimit: 4,
+                            // lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+                            lineWidthMinPixels: 1,
+                            // lineWidthScale: 1,
+                            // lineWidthUnits: 'meters',
+                            // material: true,
+                            stroked: true,
+                            wireframe: true,
+                            pickable: true,
+                        }),
+                    ],
+                });
+            } else {
+                deck.current.setProps({
+                    layers: [],
+                });
+            }
+        }
+    }, [layerCurrent]);
     function renderLayer() {
+        // console.log(data_layer.current);
         if (showLayer) {
             deck.current.setProps({
                 layers: [
@@ -222,12 +309,12 @@ export default function DeckMap() {
                         // elevationScale: 1,
                         extruded: true,
                         filled: true,
-                        getElevation: (d) => d.properties.dtich,
-                        getFillColor: (d) => [d.properties.dtich * 2.55, 140, 0],
+                        getElevation: (d) => d?.properties?.dtich,
+                        getFillColor: (d) => [d?.properties?.dtich * 2.55, 140, 0],
                         getLineColor: [80, 80, 80],
                         getLineWidth: (d) => 1,
                         getPolygon: (d) => {
-                            return d.geometry.coordinates;
+                            return d?.geometry?.coordinates;
                         },
                         // lineJointRounded: false,
                         // lineMiterLimit: 4,
@@ -257,8 +344,12 @@ export default function DeckMap() {
         }
     };
     function handleChangValueDeckMap(e, type) {
-        // eslint-disable-next-line no-eval
-        eval(`set${type}(${e.target.value})`);
+        if (data_layer.current !== null) {
+            // eslint-disable-next-line no-eval
+            eval(`set${type}(${e.target.value})`);
+        } else {
+            alert('Không có dữ liệu bản đồ!');
+        }
     }
 
     function handleChangeMapType() {
@@ -297,7 +388,7 @@ export default function DeckMap() {
                         >
                             <FontAwesomeIcon icon={faChevronLeft} />
                         </div>
-                        <label>Phổ màu</label>
+                        <label className={cx('lb')}>Phổ màu</label>
                         <div className={cx('color-layout', 'w-100')}>
                             <div className={cx('color-range', 'w-100')}>
                                 <div
@@ -351,6 +442,29 @@ export default function DeckMap() {
                                 onInput={(e) => handleChangValueDeckMap(e, 'YearFilter')}
                             ></input>
                             <span id="yearFilter-value">{yearFilter}</span>
+                        </div>
+                        <div className={cx('select-data')}>
+                            <InputLabel id="demo-simple-select-label">Lớp dữ liệu</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id={cx('simple-select')}
+                                label="Lớp dữ liệu"
+                                value={layerCurrent}
+                                onChange={(e) => {
+                                    setLayerCurrent(e.target.value);
+                                }}
+                            >
+                                {layers.map((layer) => (
+                                    <MenuItem key={layer.id} value={layer.model}>
+                                        {layer.name_display}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                            {fetchData && (
+                                <div className={cx('loading-deck')}>
+                                    Đang tải lại dữ liệu <FontAwesomeIcon icon={faSpinner} spin />
+                                </div>
+                            )}
                         </div>
                     </div>
                 </Slide>

@@ -15,7 +15,7 @@
     border-radius: 15px;
 }
 
-label {
+.lb {
     font-size: 14px;
     width: 140px;
     display: inline-block;
@@ -218,4 +218,9 @@ button:not(:disabled) {
     cursor: pointer;
     z-index: 2;
     color: var(--white);
+}
+.loading-deck {
+    display: inline-block;
+    font-size: 13px;
+    margin-left: 10px;
 }
