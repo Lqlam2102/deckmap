@@ -8,7 +8,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+// import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -24,6 +24,7 @@ import { useDispatch } from 'react-redux';
 import { loginUser } from '~/ActionCreators/UserCreator';
 import { useLocation } from 'react-router';
 import store from '~/reducers/Store';
+import images from '~/assets/image';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -114,8 +115,8 @@ export default function SignIn() {
                             alignItems: 'center',
                         }}
                     >
-                        <Avatar sx={{ m: 1, bgcolor: 'var(--primary)' }}>
-                            <LockOutlinedIcon sx={{}} />
+                        <Avatar sx={{ m: 1, width: '70px', height: '70px' }}>
+                            <img style={{ width: '100%' }} alt="logo" src={images['vnuf']} />
                         </Avatar>
                         <Typography component="h1" variant="h5">
                             Đăng nhập

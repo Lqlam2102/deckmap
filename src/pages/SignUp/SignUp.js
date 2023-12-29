@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+// import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -21,6 +21,7 @@ import { useState } from 'react';
 import classNames from 'classnames/bind';
 import styles from './SignUp.module.scss';
 import Apis, { endpoints } from '~/configs/Apis';
+import images from '~/assets/image';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -111,8 +112,8 @@ export default function SignUp() {
                         alignItems: 'center',
                     }}
                 >
-                    <Avatar sx={{ m: 1, bgcolor: 'var(--primary)' }}>
-                        <LockOutlinedIcon />
+                    <Avatar sx={{ m: 1, width: '70px', height: '70px' }}>
+                        <img style={{ width: '100%' }} alt="logo" src={images['vnuf']} />
                     </Avatar>
                     <Typography component="h1" variant="h5">
                         Đăng ký
