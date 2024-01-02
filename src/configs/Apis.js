@@ -6,5 +6,5 @@ export let endpoints = {
 };
 
 export default axios.create({
-    baseURL: 'http://localhost:8000/',
+    baseURL: 'http://api-gishub-core.laketech.vn/',
 });

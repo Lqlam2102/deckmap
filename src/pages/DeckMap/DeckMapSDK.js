@@ -97,7 +97,7 @@ export default function DeckMap() {
         // Sử dụng biến từ URL SDK
         async function getData() {
             try {
-                let layers = await Apis.get('api/layer/?all', {
+                let layers = await Apis.get('api/lmhtx/layer/?all&q=DL', {
                     headers: {
                         Authorization: `Bearer ${access_token}`,
                     },
@@ -105,7 +105,7 @@ export default function DeckMap() {
                 if (layers.data.results) {
                     setLayers(layers.data.results);
                     setLayerCurrent(layers.data.results[0].model);
-                    let data = await Apis.get(`api/geo/${layers.data.results[0].model.toLowerCase()}/`, {
+                    let data = await Apis.get(`api/lmhtx/geo/${layers.data.results[0].model.toLowerCase()}/`, {
                         headers: {
                             Authorization: `Bearer ${access_token}`,
                         },
