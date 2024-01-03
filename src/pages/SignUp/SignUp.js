@@ -35,7 +35,7 @@ export default function SignUp() {
     React.useEffect(() => {
         const state = store.getState();
         if (state.user?.user?.id) {
-            navigate('/');
+            navigate('/deckmap');
         }
     }, [navigate]);
     const { enqueueSnackbar, closeSnackbar } = useSnackbar();

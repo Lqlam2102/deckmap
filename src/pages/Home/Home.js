@@ -37,13 +37,7 @@ function Home() {
                             gian và trực quan hóa trên bản đồ.
                         </p>
 
-                        <Link
-                            id="btn-more"
-                            to="/deckmap"
-                            target="noopener"
-                            ref={buttonMore}
-                            style={{ opacity: showButtonMore ? 1 : 0 }}
-                        >
+                        <Link id="btn-more" to="/map" ref={buttonMore} style={{ opacity: showButtonMore ? 1 : 0 }}>
                             <ButtonMore />
                         </Link>
                         <div className={cx('intro')}></div>

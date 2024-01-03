@@ -9,11 +9,11 @@ import UploadLayer from '~/pages/UploadLayer';
 // import { DefaultLayout } from './Layout';
 
 const publicRoutes = [
-    { path: '/', component: Home, layout: null },
+    { path: 'deckmap/', component: Home, layout: null },
     { path: '/signin', component: SignIn, layout: null },
     { path: '/signup', component: SignUp, layout: null },
     { path: '/forgot', component: ForgotPassword, layout: null },
-    { path: '/deckmap', component: DeckMap, layout: null },
+    { path: '/map', component: DeckMap, layout: null },
     { path: '/upload', component: UploadLayer, layout: null },
     { path: '*', component: NotFound, layout: null },
 ];
