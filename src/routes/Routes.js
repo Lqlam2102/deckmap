@@ -9,7 +9,7 @@ import UploadLayer from '~/pages/UploadLayer';
 // import { DefaultLayout } from './Layout';
 
 const publicRoutes = [
-    { path: 'deckmap/', component: Home, layout: null },
+    { path: '/', component: Home, layout: null },
     { path: '/signin', component: SignIn, layout: null },
     { path: '/signup', component: SignUp, layout: null },
     { path: '/forgot', component: ForgotPassword, layout: null },
