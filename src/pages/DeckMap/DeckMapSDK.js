@@ -234,7 +234,7 @@ export default function DeckMap() {
     useEffect(() => {
         async function getData() {
             try {
-                let data = await Apis.get(`api/geo/${layerCurrent.toLowerCase()}/`, {
+                let data = await Apis.get(`api/lmhtx/geo/${layerCurrent.toLowerCase()}/`, {
                     headers: {
                         Authorization: `Bearer ${access_token}`,
                     },
@@ -325,6 +325,7 @@ export default function DeckMap() {
                         // material: true,
                         stroked: true,
                         wireframe: true,
+                        autoHighlight: true,
                         pickable: true,
                     }),
                 ],

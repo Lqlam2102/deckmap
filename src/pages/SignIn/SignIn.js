@@ -37,7 +37,7 @@ export default function SignIn() {
     React.useEffect(() => {
         const state = store.getState();
         if (state.user?.user?.id) {
-            navigate('/deckmap');
+            navigate('/');
         } else {
             setIsLoading(false);
         }
