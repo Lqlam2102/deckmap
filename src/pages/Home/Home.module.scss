@@ -1,3 +1,4 @@
+
 .main {
     height: 100vh;
     display: flex;
@@ -19,3 +20,19 @@
     margin: 0;
     position: relative;
 }
+
+@media all and ( max-width: 480px) {
+  .body-home {
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c0/Satellite_picture_of_Ca_Mau_2020-12-21-00_00_2020-12-21-23_59_Sentinel-2_L2A.jpg');
+        background-size: 600vw;
+        background-position: -600px 0;
+        height: 130vh;
+        color: var(--white);
+        font-family: var(--font);
+        font-weight: 400;
+        font-size: var(--p);
+        margin: 0;
+        position: relative;
+    }
+   
+  } 
