@@ -7,6 +7,7 @@
     padding: 0 2rem;
     gap: 2rem;
 }
+
 .body-home {
     background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c0/Satellite_picture_of_Ca_Mau_2020-12-21-00_00_2020-12-21-23_59_Sentinel-2_L2A.jpg');
     background-size: 140vw;
@@ -18,4 +19,19 @@
     font-size: var(--p);
     margin: 0;
     position: relative;
+}
+
+@media only screen and (max-width: 480px) {
+    .body-home {
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/c/c0/Satellite_picture_of_Ca_Mau_2020-12-21-00_00_2020-12-21-23_59_Sentinel-2_L2A.jpg');
+        background-size: 570vw;
+        background-position: -550px 0;
+        height: 130vh;
+        color: var(--white);
+        font-family: var(--font);
+        font-weight: 400;
+        font-size: var(--p);
+        margin: 0;
+        position: relative;
+    }
 }

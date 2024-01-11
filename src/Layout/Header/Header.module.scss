@@ -73,3 +73,12 @@ nav {
     cursor: pointer;
     // border: 1px solid var(--white);
 }
+
+@media only screen and (max-width: 480px) {
+    .user-avatar {
+        display: none;
+    }
+    .btn-upload {
+        display: none;
+    }
+}

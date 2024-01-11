@@ -9,16 +9,11 @@ import styles from './Header.module.scss';
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
+import images from '~/assets/image';
 const cx = classNames.bind(styles);
-const NO_IMAGE = 'http://api-gishub-core.laketech.vn/media/uploads/avatar/2023/12/16/user_y8iDMyO.jpg';
 
 function Header() {
     const [login, setLogin] = useState(false);
-    const [_fallback, setFallback] = useState('');
-
-    const handleError = () => {
-        setFallback(NO_IMAGE);
-    };
     const navigate = useNavigate();
     const state = store.getState();
     useEffect(() => {
@@ -34,7 +29,7 @@ function Header() {
         setLogin(false);
     };
     const handleUploadData = (e) => {
-        window.open('http://gishub-core.laketech.vn/manage/folder/99ec680b-b73c-4663-a030-91c0f7eaf64a', '_blank');
+        window.open('http://gishub-core.laketech.vn/manage/folder/dfc0d9e9-57f5-4598-bca9-e7df8910d547', '_blank');
     };
     const handleLogin = (e) => {
         navigate('/signin');
@@ -47,11 +42,10 @@ function Header() {
                     <div className={cx('user-container')}>
                         <img
                             className={cx('user-avatar')}
-                            src={_fallback || state.user?.user?.photo}
+                            src={images['avatar_default'] || state.user?.user?.photo}
                             alt={state.user?.user?.last_name}
-                            onError={handleError}
                         />
-                        <button className={cx('btn-outline')} onClick={handleUploadData}>
+                        <button className={cx('btn-outline', 'btn-upload')} onClick={handleUploadData}>
                             <FontAwesomeIcon icon={faArrowUpFromBracket} style={{ paddingRight: '10px' }} />
                             Tải lên dữ liệu
                         </button>

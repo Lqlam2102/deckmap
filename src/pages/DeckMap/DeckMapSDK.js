@@ -9,9 +9,11 @@ import {
     faAngleDown,
     faChevronLeft,
     faChevronRight,
+    faHouse,
     faLayerGroup,
     faSpinner,
     faToolbox,
+    faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { Matrix4 } from '@math.gl/core';
 import styles from './DeckMapSDK.module.scss';
@@ -21,11 +23,12 @@ import images from '~/assets/image';
 import { PolygonLayer } from '@deck.gl/layers';
 import cookies from 'react-cookies';
 import Apis from '~/configs/Apis';
-import { Fade } from '@mui/material';
+import { Fade, IconButton } from '@mui/material';
 import Slide from '@mui/material/Slide';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
+import { useSnackbar } from 'notistack';
 
 const cx = classNames.bind(styles);
 
@@ -90,14 +93,20 @@ export default function DeckMap() {
     const mapContainer = useRef(null);
     const mapMain = useRef(null);
     const access_token = cookies.load('access_token');
+    const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+    const action = (key) => (
+        <IconButton size="small" aria-label="close" color="inherit" onClick={() => closeSnackbar(key)}>
+            <FontAwesomeIcon icon={faXmark} beat />
+        </IconButton>
+    );
+    // Load init map
     useEffect(() => {
-        // Load map
         mapContainer.current = document.getElementsByClassName('App')[0];
         mapContainer.current.setAttribute('style', 'height: 100vh');
         // Sử dụng biến từ URL SDK
         async function getData() {
             try {
-                let layers = await Apis.get('api/lmhtx/layer/?all&q=DL', {
+                let layers = await Apis.get('api/lmhtx/layer/?all&folder=dfc0d9e9-57f5-4598-bca9-e7df8910d547', {
                     headers: {
                         Authorization: `Bearer ${access_token}`,
                     },
@@ -115,9 +124,17 @@ export default function DeckMap() {
                 }
                 setIsLoading(false);
             } catch (err) {
+                if (err.response.status === 401) {
+                    // alert('Bạn phải đăng nhập để sử dụng chức năng biểu diễn dữ liệu');
+                    enqueueSnackbar('Bạn phải đăng nhập để sử dụng chức năng biểu diễn dữ liệu!', {
+                        variant: 'warning',
+                        action,
+                    });
+                    setShowToolbox(false);
+                }
                 setIsLoading(false);
                 setError(error);
-                console.log(err.message);
+                console.log(err);
             }
         }
         getData();
@@ -223,14 +240,24 @@ export default function DeckMap() {
                         (obj) => obj.properties.ngayht.indexOf(yearFilter) !== -1,
                     );
                 } catch (err) {
-                    alert('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!');
+                    // alert('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!');
+                    enqueueSnackbar('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!', {
+                        variant: 'error',
+                        action,
+                        preventDuplicate: true,
+                    });
                 }
             } else {
-                alert('Không có dữ liệu bản đồ!');
+                enqueueSnackbar('Không có dữ liệu bản đồ!', {
+                    variant: 'error',
+                    action,
+                    preventDuplicate: true,
+                });
             }
             renderLayer();
         }
     }, [opacityLayer, yearFilter, showLayer]);
+    // Load layer
     useEffect(() => {
         async function getData() {
             try {
@@ -242,7 +269,55 @@ export default function DeckMap() {
                 data_layer_const.current = data.data[0][0];
                 data_layer.current = data.data[0][0];
                 setFetchData(false);
-                return data.data[0][0];
+                data = data.data[0][0];
+                if (showLayer && data[0]?.properties?.dtich && data[0]?.geometry?.coordinates) {
+                    try {
+                        data = data.filter((obj) => obj.properties.ngayht.indexOf(yearFilter) !== -1);
+                        deck.current.setProps({
+                            layers: [
+                                // hexagonLayer,
+                                new PolygonLayer({
+                                    id: 'PolygonLayer',
+                                    data: data,
+
+                                    /* props from PolygonLayer class */
+                                    opacity: opacityLayer,
+                                    // elevationScale: 1,
+                                    extruded: true,
+                                    filled: true,
+                                    getElevation: (d) => d.properties.dtich,
+                                    getFillColor: (d) => [d.properties.dtich * 2.55, 140, 0],
+                                    getLineColor: [80, 80, 80],
+                                    getLineWidth: (d) => 1,
+                                    getPolygon: (d) => {
+                                        return d.geometry.coordinates;
+                                    },
+                                    // lineJointRounded: false,
+                                    // lineMiterLimit: 4,
+                                    // lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
+                                    lineWidthMinPixels: 1,
+                                    // lineWidthScale: 1,
+                                    // lineWidthUnits: 'meters',
+                                    // material: true,
+                                    stroked: true,
+                                    wireframe: true,
+                                    pickable: true,
+                                }),
+                            ],
+                        });
+                    } catch (err) {
+                        // alert('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!');
+                        enqueueSnackbar('Oops dữ liệu của bạn đã bị hỏng vui lòng chọn dữ liệu khác!', {
+                            variant: 'error',
+                            action,
+                            preventDuplicate: true,
+                        });
+                    }
+                } else {
+                    deck.current.setProps({
+                        layers: [],
+                    });
+                }
             } catch (err) {
                 setFetchData(false);
                 console.log(err.message);
@@ -253,45 +328,7 @@ export default function DeckMap() {
             deck.current.setProps({
                 layers: [],
             });
-            let data = getData();
-            if (showLayer) {
-                deck.current.setProps({
-                    layers: [
-                        // hexagonLayer,
-                        new PolygonLayer({
-                            id: 'PolygonLayer',
-                            data: data,
-
-                            /* props from PolygonLayer class */
-                            opacity: opacityLayer,
-                            // elevationScale: 1,
-                            extruded: true,
-                            filled: true,
-                            getElevation: (d) => d.properties.dtich,
-                            getFillColor: (d) => [d.properties.dtich * 2.55, 140, 0],
-                            getLineColor: [80, 80, 80],
-                            getLineWidth: (d) => 1,
-                            getPolygon: (d) => {
-                                return d.geometry.coordinates;
-                            },
-                            // lineJointRounded: false,
-                            // lineMiterLimit: 4,
-                            // lineWidthMaxPixels: Number.MAX_SAFE_INTEGER,
-                            lineWidthMinPixels: 1,
-                            // lineWidthScale: 1,
-                            // lineWidthUnits: 'meters',
-                            // material: true,
-                            stroked: true,
-                            wireframe: true,
-                            pickable: true,
-                        }),
-                    ],
-                });
-            } else {
-                deck.current.setProps({
-                    layers: [],
-                });
-            }
+            getData();
         }
     }, [layerCurrent]);
     function renderLayer() {
@@ -349,7 +386,11 @@ export default function DeckMap() {
             // eslint-disable-next-line no-eval
             eval(`set${type}(${e.target.value})`);
         } else {
-            alert('Không có dữ liệu bản đồ!');
+            enqueueSnackbar('Không có dữ liệu bản đồ!', {
+                variant: 'error',
+                action,
+                preventDuplicate: true,
+            });
         }
     }
 
@@ -508,6 +549,14 @@ export default function DeckMap() {
                         }}
                     >
                         <FontAwesomeIcon icon={faLayerGroup} />
+                    </div>
+                    <div
+                        id={cx('tool-map3')}
+                        onClick={(e) => {
+                            window.open('/', '_blank');
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faHouse} />
                     </div>
                 </div>
             </div>

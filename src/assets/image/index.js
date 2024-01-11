@@ -4,5 +4,6 @@ const images = {
     roadMap: require('~/assets/image/maptype/roadMap.png'),
     satellite: require('~/assets/image/maptype/satellite.png'),
     vnuf: require('~/assets/image/logo/vnuf.png'),
+    avatar_default: require('~/assets/image/user.37dbb591.jpg'),
 };
 export default images;
