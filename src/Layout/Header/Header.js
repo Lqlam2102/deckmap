@@ -16,6 +16,11 @@ function Header() {
     const [login, setLogin] = useState(false);
     const navigate = useNavigate();
     const state = store.getState();
+    const [_fallback, setFallback] = useState('');
+
+    const handleError = () => {
+        setFallback(images['avatar_default']);
+    };
     useEffect(() => {
         if (state.user?.user?.id) {
             setLogin(true);
@@ -42,8 +47,9 @@ function Header() {
                     <div className={cx('user-container')}>
                         <img
                             className={cx('user-avatar')}
-                            src={images['avatar_default'] || state.user?.user?.photo}
+                            src={_fallback || `http://api-gishub-core.laketech.vn${state.user?.user?.photo}`}
                             alt={state.user?.user?.last_name}
+                            onError={handleError}
                         />
                         <button className={cx('btn-outline', 'btn-upload')} onClick={handleUploadData}>
                             <FontAwesomeIcon icon={faArrowUpFromBracket} style={{ paddingRight: '10px' }} />
